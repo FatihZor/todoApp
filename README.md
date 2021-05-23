@@ -1,7 +1,7 @@
 # Welcome to todoApp!
 todoApp is a todo list application created using Flask, MongoDB and Angular technologies.
 
-##  Download Instruction
+## Download Instruction
 
 * Run `git clone https://github.com/FatihZor/todoApp.git`
 * Run `cd todoApp`
@@ -28,3 +28,6 @@ todoApp is a todo list application created using Flask, MongoDB and Angular tech
 * Navigate to `http://localhost:4200/`
 
 [Other Angular Options](https://github.com/FatihZor/todoApp/tree/main/todoApp)
+
+## App Demo
+![App Demo](app.gif)
