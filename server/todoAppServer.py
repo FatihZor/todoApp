@@ -62,6 +62,7 @@ def index(oid=None):
             object = todos.objects(id = oid).first()
             if object:
                 object.is_completed = True
+                object.updated_at = datetime.now()
                 object.save()
                 return jsonify(success = "OK")
             else:
