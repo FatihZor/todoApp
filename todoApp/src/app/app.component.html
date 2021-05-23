@@ -1,0 +1,31 @@
+<div class="container">
+  <form #todoForm= "ngForm" (submit)="todoSubmit(todoT.value, todoD.value); todoForm.resetForm()" >
+    <div class="form-group">
+      <h1 class="text-center text-primary">Todo App</h1>
+        <input type="text" #todoT class="form-control mb-1" placeholder="ToDo Title" name="todoT" ngModel>
+        <input type="text" #todoD class="form-control mb-1" placeholder="ToDo Description" name="todoD" ngModel>
+        <button class="btn-lg btn-warning btn-block mb-5" (click)="addTodo(todoT.value, todoD.value)">Ekle</button>
+    </div>
+  </form>
+</div>
+<div class="container" *ngFor="let todo of todoService.todos">
+  <div class="row" >
+    <div class="col-12">
+      <div class="card" [ngClass]="{'bg-dark text-white':todo.is_completed}">
+        <div class="card-header d-flex justify-content-between">
+          <p class="badge">Created At: {{todo.created_at}}</p>
+          <p class="badge">Updated At: {{todo.updated_at}}</p>
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{todo.title}}</h3>
+          <p class="card-text">{{todo.description}}</p>
+        </div>
+        <div class="card-footer d-flex flex-row-reverse">
+
+          <button  class="btn btn-lg btn-success mr-3" *ngIf="!todo.is_completed" (click)="todoComplete(todo._id)">Complete</button>
+          <button class="btn btn-lg btn-danger mr-3" (click)="todoDelete(todo._id)" >Delete</button>
+        </div>
+      </div>
+    </div>
+  </div><br>
+</div>
