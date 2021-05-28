@@ -10,23 +10,23 @@ const API_URL = 'http://127.0.0.1:5005';
   providedIn: 'root'
 })
 export class DataService {
-  todos: Todo[] = [];
+  todoList: Todo[] = [];
   constructor(private http: HttpClient) {
-    this.todos = this.getTodos();
+    this.todoList = this.getTodoList();
   }
-  getTodos(): Todo[] {
-    this.http.get(API_URL + '/todos')
+  getTodoList(): Todo[] {
+    this.http.get(API_URL + '/todoList')
       .pipe(catchError(this.errorHandler))
       .subscribe((response: any) => {
         console.log(response);
         
-        this.todos = response;
+        this.todoList = response;
       })
-    return this.todos;
+    return this.todoList;
   }
 
   errorHandler(error: HttpErrorResponse) {
-    return observableThrowError(error.message || 'Something went wrong!!!!');
+    return observableThrowError(error.message || 'Something went wrong!');
   }
 
   addTodo(todoTitle: string, todoDescription: string): void {
@@ -40,17 +40,17 @@ export class DataService {
       title: todoTitle,
       description: todoDescription
     }
-    this.http.post(API_URL+'/todos', JSON.stringify(item), {headers})
+    this.http.post(API_URL+'/todoList', JSON.stringify(item), {headers})
       .subscribe((response: any) => {
-        this.getTodos();
+        this.getTodoList();
       });
   }
 
   
   deleteTodo(id:string): void {
-    this.http.delete(API_URL + '/todos/' + id)
+    this.http.delete(API_URL + '/todoList/' + id)
     .subscribe((response: any) => {
-      this.getTodos();
+      this.getTodoList();
       })
   }
 
@@ -61,9 +61,9 @@ export class DataService {
     const item={
       _id: id
     }
-    this.http.put(API_URL + '/todos', JSON.stringify(item), {headers})
+    this.http.put(API_URL + '/todoList', JSON.stringify(item), {headers})
     .subscribe((response: any) => {
-      this.getTodos();
+      this.getTodoList();
       })
   }
 }
