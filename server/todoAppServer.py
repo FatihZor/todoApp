@@ -1,14 +1,16 @@
-from flask import Flask,jsonify, request
+from flask import Flask, jsonify, request
 import json
 from flask_cors import CORS
 from mongoengine import connect, StringField, Document, DateTimeField, BooleanField
 from datetime import datetime
+
 connect("todo")
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 
-class todoObject():
+class todoObject:
+
     _id = ""
     title = ""
     description = ""
@@ -16,67 +18,114 @@ class todoObject():
     created_at = ""
     updated_at = ""
 
-class todos(Document):
+    def __init__(self, **kwargs) -> "todoObject":
+
+        self._id = kwargs["_id"]
+        self.title = kwargs["title"]
+        self.description = kwargs["description"]
+
+        self.is_completed = kwargs["is_completed"]
+        self.updated_at = kwargs["updated_at"]
+        self.created_at = kwargs["created_at"]
+
+
+class todoList(Document):
+
     title = StringField()
     description = StringField()
     is_completed = BooleanField()
     created_at = DateTimeField()
     updated_at = DateTimeField()
 
+    def create(
+        self,
+        title: str,
+        description: str,
+        is_completed: bool = False,
+        created_at: datetime = None,
+        updated_at: datetime = datetime.now(),
+    ) -> "todoList":
 
-@app.route('/todos', methods=['GET', 'POST', 'PUT'])
-@app.route('/todos/<string:oid>', methods=['DELETE'])
+        self.title = title
+        self.description = description
+
+        self.is_completed = is_completed
+        self.updated_at = updated_at
+
+        if created_at:
+            self.created_at = created_at
+
+        return self
+
+
+@app.route("/todoList", methods=["GET", "POST", "PUT"])
+@app.route("/todoList/<string:oid>", methods=["DELETE"])
 def index(oid=None):
+
     if oid == None:
+
         if request.method == "GET":
-            all_todos = todos.objects()
-            if len(all_todos) < 1:
+
+            todo_list = todoList.objects()
+
+            if len(todo_list) < 1:
                 return ""
-            else:
-                all_objects = []
-                for object in todos.objects().order_by('-id'):
-                    new_todoObject = todoObject()
-                    new_todoObject._id = str(object.id)
-                    new_todoObject.title = object.title
-                    new_todoObject.description = object.description
-                    new_todoObject.is_completed = object.is_completed
-                    new_todoObject.created_at = object.created_at.strftime("%m/%d/%Y, %H:%M:%S")
-                    new_todoObject.updated_at = object.updated_at.strftime("%m/%d/%Y, %H:%M:%S")
-                    all_objects.append(new_todoObject.__dict__)
-                return json.dumps(all_objects)
+
+            all_objects = []
+            for object in todo_list.order_by("-id"):
+
+                todo = todoObject(
+                    _id=str(object.id),
+                    title=object.title,
+                    description=object.description,
+                    is_completed=object.is_completed,
+                    created_at=object.created_at.strftime("%m/%d/%Y, %H:%M:%S"),
+                    updated_at=object.updated_at.strftime("%m/%d/%Y, %H:%M:%S"),
+                )
+                all_objects.append(todo.__dict__)
+
+            return json.dumps(all_objects)
 
         elif request.method == "POST":
+
             data = request.get_json()
-            new_todos = todos()
-            new_todos.title = data['title']
-            new_todos.description = data['description']
-            new_todos.is_completed = False
-            new_todos.created_at = datetime.now()
-            new_todos.updated_at = datetime.now()
-            new_todos.save()
-            return jsonify(success = "OK")
+
+            new_todo = todoList().create(
+                title=data["title"],
+                description=data["description"],
+                created_at=datetime.now(),
+            )
+            new_todo.save()
+
+            return jsonify(success="OK")
 
         elif request.method == "PUT":
-            data = request.get_json()
-            oid = data['_id']
-            object = todos.objects(id = oid).first()
-            if object:
-                object.is_completed = True
-                object.updated_at = datetime.now()
-                object.save()
-                return jsonify(success = "OK")
-            else:
-                return jsonify(success = "FAIL")
 
+            data = request.get_json()
+            oid = data["_id"]
+
+            object = todoList.objects(id=oid).first()
+
+            if not object:
+                return jsonify(success="FAIL")
+
+            object.is_completed = True
+            object.updated_at = datetime.now()
+            object.save()
+
+            return jsonify(success="OK")
 
     else:
         if request.method == "DELETE":
-            object = todos.objects(id = oid).first()
-            if object:
-                object.delete()
-                return jsonify(success = "OK")
-            else:
-                return jsonify(success = "FAIL")
 
-if __name__ == '__main__':
+            object = todoList.objects(id=oid).first()
+
+            if not object:
+                return jsonify(success="FAIL")
+
+            object.delete()
+            return jsonify(success="OK")
+
+
+if __name__ == "__main__":
     app.run(port=5005, debug=True)

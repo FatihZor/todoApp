@@ -8,7 +8,7 @@
     </div>
   </form>
 </div>
-<div class="container" *ngFor="let todo of todoService.todos">
+<div class="container" *ngFor="let todo of todoService.todoList">
   <div class="row" >
     <div class="col-12">
       <div class="card" [ngClass]="{'bg-dark text-white':todo.is_completed}">
